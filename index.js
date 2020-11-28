@@ -28,7 +28,7 @@ app.get('/api/ping', pingController.ping);
 app.post('/api/login', authController.login);
 app.post('/api/users', usersController.create);
 
-// app.use(isLoggedIn);
+app.use(isLoggedIn);
 
 app.get('/api/users', usersController.read);
 app.get('/api/users/:id', usersController.readById);

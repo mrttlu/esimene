@@ -1,18 +1,4 @@
-// Database mockup
-const subjects = [
-  {
-      id: 0,
-      name: 'Riistvara ja operatsioonisüsteemide alused',
-      lecturerId: 0,
-      userId: 0
-  },
-  {
-      id: 1,
-      name: 'Programmeerimine II',
-      lecturerId: 0,
-      userId: 0
-  }
-];
+const db = require('../../db');
 
 const subjectsService = {};
 
@@ -24,10 +10,8 @@ subjectsService.readById = (id) => {
   return subjects[id];
 }
 
-subjectsService.create = (subject) => {
-  subject.id = subjects.length;
-  // Add lecturer to 'database'
-  subjects.push(subject);
+subjectsService.create = async (subject, email) => {
+  await db.collection('users').doc(email).collection('subjects').doc().set(subject);
   return subject;
 }
 

@@ -38,21 +38,19 @@ subjectsController.readById = (req, res) => {
 // Returns:
 //  Success: status 201 - Created and lecturer data in response body
 //  Fail: status 400 - Bad Request and error message in response body
-subjectsController.create = (req, res) => {
+subjectsController.create = async (req, res) => {
   // Check if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
   const name = typeof(req.body.name) === 'string' && req.body.name.trim().length > 0 ? req.body.name : false;
-  const lecturerId = typeof(req.body.lecturerId) === 'number' ? req.body.lecturerId : false;
-  const userId = typeof(req.body.userId) === 'number' ? req.body.userId : false;
-
+  const lecturerId = typeof(req.body.lecturerId) === 'string' ? req.body.lecturerId : false;
+  const email = req.user;
   // Check if required data exists
-  if (name && (lecturerId || lecturerId === 0) && (userId || userId === 0)) {
+  if (name && (lecturerId || lecturerId === 0)) {
       // Create new json with user data
       const newSubject = {
           name,
-          lecturerId,
-          userId
+          lecturerId
       };
-      const subject = subjectsService.create(newSubject);
+      const subject = await subjectsService.create(newSubject, email);
       // Return data
       res.status(201).json({
           success: true,
