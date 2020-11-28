@@ -1,6 +1,5 @@
 const hashService = require('./hashService');
 const db = require('../../db');
-const { doc } = require('../../db');
 
 usersService = {};
 
