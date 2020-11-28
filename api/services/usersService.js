@@ -1,30 +1,28 @@
 const hashService = require('./hashService');
-const users = [
-  {
-      id: 0,
-      firstName: 'Juku',
-      lastName: 'Juurikas',
-      email: 'juku@juurikas.ee',
-      password: '$2b$10$0Ij/HJQO1UIejaqBMJMH/OHWgkThGm/QsEiLZbU3n.aU/q9qFVTL6' // password: johndoe
-  },
-  {
-      id: 1,
-      firstName: 'Juhan',
-      lastName: 'Juurikas',
-      email: 'juhan@juurikas.ee',
-      password: '$2b$10$0Ij/HJQO1UIejaqBMJMH/OHWgkThGm/QsEiLZbU3n.aU/q9qFVTL6'
-  }
-];
+const db = require('../../db');
+const { doc } = require('../../db');
 
 usersService = {};
 
 // Return list of users
-usersService.read = () => {
+usersService.read = async () => {
+  const usersRef = db.collection('users');
+  const snapshot = await usersRef.get();
+  const users = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
   return users;
 }
 
-usersService.readByEmail = (email) => {
-  const user = users.find(user => user.email === email);
+usersService.readByEmail = async (email) => {
+  const usersRef = db.collection('users');
+  const snapshot = await usersRef.where('email', '==', email).get();
+  if (snapshot.empty) {
+    console.log('No matching user.');
+    return;
+  }
+  const user = snapshot.docs[0].data();
   return user;
 }
 
@@ -35,16 +33,13 @@ usersService.readById = (userId) => {
 
 // Create user
 usersService.create = async (user) => {
-  user.id = users.length;
   user.password = await hashService.hash(user.password);
   // Add user to 'database'
-  users.push(user);
-
+  await db.collection('users').doc(user.email).set(user);
   // Create new json from newUser for response
   const userToReturn = { ... user };
   // Remove password from user data
-  // delete userToReturn.password;
-
+  delete userToReturn.password;
   return userToReturn;
 }
 

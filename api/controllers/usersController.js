@@ -6,8 +6,8 @@ const usersController = {};
 // Required values: none
 // Optional values: none
 // Returns: status 200 - OK and list of users in response body
-usersController.read = (req, res) => {
-    const users = usersService.read();
+usersController.read = async (req, res) => {
+    const users = await usersService.read();
     // Return list of users
     res.status(200).json({
         success: true,
