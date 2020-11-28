@@ -26,8 +26,14 @@ usersService.readByEmail = async (email) => {
 }
 
 // Return user by id
-usersService.readById = (userId) => {
-  return users[userId];
+usersService.readById = async (userId) => {
+  const doc = await db.collection('users').doc(userId).get();
+  if (!doc.exists) {
+    console.log('No such document!');
+    return false;
+  }
+  const user = doc.data();
+  return user;
 }
 
 // Create user
@@ -42,35 +48,34 @@ usersService.create = async (user) => {
   return userToReturn;
 }
 
-usersService.update = (user) => {
+usersService.update = async (user) => {
+  let update = {};
     // Check if optional data exists
     if (user.firstName) {
         // Change user data in 'database'
-        users[user.id].firstName = user.firstName;
+        update.firstName = user.firstName;
     }
     // Check if optional data exists
     if (user.lastName) {
         // Change user data in 'database'
-        users[user.id].lastName = user.lastName;
+        update.lastName = user.lastName;
     }
     // Check if optional data exists
     if (user.email) {
         // Change user data in 'database'
-        users[user.id].email = user.email;
+        update.email = user.email;
     }
     // Check if optional data exists
     if (user.password) {
         // Change user data in 'database'
-        users[user.id].password = user.password;
+        update.password = await hashService.hash(user.password);
     }
-
-    const updatedUser = { ... users[user.id]};
-    delete updatedUser.password;
-    return updatedUser;
+    await db.collection('users').doc(user.id).update(update);
+    return true;
 }
 
-usersService.delete = (id) => {
-  users.splice(id, 1);
+usersService.delete = async (id) => {
+  await db.collection('users').doc(id).delete();
   return true;
 }
 
