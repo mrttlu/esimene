@@ -42,7 +42,7 @@ subjectsController.create = async (req, res) => {
   // Check if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
   const name = typeof(req.body.name) === 'string' && req.body.name.trim().length > 0 ? req.body.name : false;
   const lecturerId = typeof(req.body.lecturerId) === 'string' ? req.body.lecturerId : false;
-  const email = req.user;
+  const id = req.user;
   // Check if required data exists
   if (name && (lecturerId || lecturerId === 0)) {
       // Create new json with user data
@@ -50,7 +50,7 @@ subjectsController.create = async (req, res) => {
           name,
           lecturerId
       };
-      const subject = await subjectsService.create(newSubject, email);
+      const subject = await subjectsService.create(newSubject, id);
       // Return data
       res.status(201).json({
           success: true,

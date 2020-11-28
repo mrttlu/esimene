@@ -10,8 +10,8 @@ subjectsService.readById = (id) => {
   return subjects[id];
 }
 
-subjectsService.create = async (subject, email) => {
-  await db.collection('users').doc(email).collection('subjects').doc().set(subject);
+subjectsService.create = async (subject, id) => {
+  await db.collection('users').doc(id).collection('subjects').doc().set(subject);
   return subject;
 }
 

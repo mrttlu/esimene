@@ -1,5 +1,4 @@
 const lecturersService = require('../services/lecturersService');
-const lectrurersService = require('../services/lecturersService');
 
 const lecturersController = {};
 
@@ -8,9 +7,10 @@ const lecturersController = {};
 // Required values: none
 // Optional values: none
 // Returns: status 200 - OK and list of lecturers in response body
-lecturersController.read = (req, res) => {
+lecturersController.read = async (req, res) => {
+    const userId = req.user;
   // Get list of lecturers
-  const lecturers = lectrurersService.read();
+  const lecturers = await lecturersService.read(userId);
   // Return list of lecturers
   res.status(200).json({
       success: true,
@@ -23,10 +23,10 @@ lecturersController.read = (req, res) => {
 // Required: id
 // Optional: none
 // Returns: status 200 - OK and lecturer data in response body
-lecturersController.readById = (req, res) => {
+lecturersController.readById = async (req, res) => {
   const id = req.params.id;
   // Get lecturer from service
-  const lecturer = lecturersService.readById(id);
+  const lecturer = await lecturersService.readById(id);
   // Return lecturer
   res.status(200).json({
       success: true,
@@ -41,15 +41,14 @@ lecturersController.readById = (req, res) => {
 // Returns:
 //  Success: status 201 - Created and lecturer data in response body
 //  Fail: status 400 - Bad Request and error message in response body
-lecturersController.create =(req, res) => {
+lecturersController.create = async (req, res) => {
   // Check if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
   const firstName = typeof(req.body.firstName) === 'string' && req.body.firstName.trim().length > 0 ? req.body.firstName : false;
   const lastName = typeof(req.body.lastName) === 'string' && req.body.lastName.trim().length > 0 ? req.body.lastName : false;
   const email = typeof(req.body.email) === 'string' && req.body.email.trim().length > 0 ? req.body.email : false;
-  const userId = typeof(req.body.userId) === 'number' ? req.body.userId : false;
-
+  const userId = req.user;
   // Check if required data exists
-  if (firstName && lastName && email && (userId || userId === 0)) {
+  if (firstName && lastName && email && userId) {
       // Create new json with user data
       const newLecturer = {
           firstName,
@@ -58,7 +57,7 @@ lecturersController.create =(req, res) => {
           userId
       };
       
-      const lecturer = lectrurersService.create(newLecturer);
+      const lecturer = await lecturersService.create(newLecturer);
       // Return data
       res.status(201).json({
           success: true,
@@ -80,34 +79,26 @@ lecturersController.create =(req, res) => {
 // Returns:
 //  Success: status 200 - OK and lecturer data in response body
 //  Fail: status 400 - Bad Request and error message in response body
-lecturersController.update = (req, res) => {
+lecturersController.update = async (req, res) => {
   // Next lines checking if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
-  const id = typeof(req.body.id) === 'number' ? req.body.id : false;
+  const id = typeof(req.body.id) === 'string' ? req.body.id : false;
   const firstName = typeof(req.body.firstName) === 'string' && req.body.firstName.trim().length > 0 ? req.body.firstName : false;
   const lastName = typeof(req.body.lastName) === 'string' && req.body.lastName.trim().length > 0 ? req.body.lastName : false;
   const email = typeof(req.body.email) === 'string' && req.body.email.trim().length > 0 ? req.body.email : false;
-  // Check if required data exists
-  if(id || id === 0) {
-      // Check if optional data exists
-      if (firstName) {
-          // Change user data in 'database'
-          lecturers[id].firstName = firstName;
-      }
-      // Check if optional data exists
-      if (lastName) {
-          // Change user data in 'database'
-          lecturers[id].lastName = lastName;
-      }
-      // Check if optional data exists
-      if (email) {
-          // Change user data in 'database'
-          lecturers[id].email = email;
-      }
-      // Return updated user data
-      res.status(200).json({
-          success: true,
-          lecturer: lecturers[id]
-      });
+  const userId = req.user;
+  if (id) {
+    const lecturer = {
+        id,
+        firstName,
+        lastName,
+        email
+    };
+    const updatedLecturer = await lecturersService.update(lecturer, userId);
+  
+    res.status(200).json({
+        success: true,
+        lecturer: updatedLecturer
+    });
   } else {
       // Return error message
       res.status(400).json({

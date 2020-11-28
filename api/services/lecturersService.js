@@ -1,40 +1,42 @@
-// Database mockup
-const lecturers = [
-  {
-      id: 0,
-      firstName: 'Kalle',
-      lastName: 'Kuld',
-      email: 'kalle.kuld@tlu.ee',
-      userId: 0
-  },
-  {
-      id: 1,
-      firstName: 'Malle',
-      lastName: 'Muld',
-      email: 'malle.muld@tlu.ee',
-      userId: 0
-  },
-];
-
+const db = require('../../db');
 const lecturersService = {
-  read: () => {
+  read: async (userId) => {
+    const snapshot = await db.collection('lecturers').where("userId", "==", userId).get();
+    const lecturers = [];
+    for (const doc of snapshot.docs) {
+      lecturers.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    }
     return lecturers;
   },
-  readById: (id) => {
-    return lecturers[id];
+  readById: async (id) => {
+    const doc = await db.collection('lecturers').doc(id).get();
+    if (!doc.exists) {
+      console.log('No such document!');
+      return false;
+    }
+    const lecturer = doc.data();
+    return lecturer;
   },
-  create: (lecturer) => {
-    lecturer.id = lecturers.length,
-    // Add lecturer to 'database'
-    lecturers.push(lecturer);
-
-    const lecturerToReturn = { ... lecturer };
-    delete password;
-
-    return lecturerToReturn;
+  create: async (lecturer) => {
+    await db.collection('lecturers').doc().set(lecturer);
+    return lecturer;
   },
-  update: () => {
-
+  update: async (lecturer, userId) => {
+    const update = {};
+    if (lecturer.firstName) {
+      update.firstName = lecturer.firstName;
+    }
+    if (lecturer.lastName) {
+      update.lastName = lecturer.lastName;
+    }
+    if (lecturer.email) {
+      update.email = lecturer.email;
+    }
+    await db.collection('lecturers').doc(lecturer.id).update(update);
+    return update;
   },
   delete: (id) => {
     lecturers.splice(id, 1);

@@ -97,7 +97,7 @@ usersController.update = async (req, res) => {
      }
      */
     // Check if required data exists
-    if(id || id === 0) {
+    if(id) {
         const firstName = typeof(req.body.firstName) === 'string' && req.body.firstName.trim().length > 0 ? req.body.firstName : false;
         const lastName = typeof(req.body.lastName) === 'string' && req.body.lastName.trim().length > 0 ? req.body.lastName : false;
         const email = typeof(req.body.email) === 'string' && req.body.email.trim().length > 0 ? req.body.email : false;
