@@ -35,6 +35,11 @@ const lecturersService = {
     if (lecturer.email) {
       update.email = lecturer.email;
     }
+    const snapshot = await db.collection('lecturers').doc(lecturer.id).get();
+    if (snapshot.empty || (snapshot.data().userId !== userId)) {
+      console.log('No matching lecturer.');
+      return false;
+    }
     await db.collection('lecturers').doc(lecturer.id).update(update);
     return update;
   },

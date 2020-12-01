@@ -94,7 +94,6 @@ lecturersController.update = async (req, res) => {
         email
     };
     const updatedLecturer = await lecturersService.update(lecturer, userId);
-  
     res.status(200).json({
         success: true,
         lecturer: updatedLecturer
