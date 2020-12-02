@@ -399,6 +399,15 @@ usersController.create = async (req, res) => {
         token: token
       });
       ```
+    * Selle API vastus koos tokeniga näeb välja selline:
+      ```javascript
+      {
+          "success": true,
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjA2ODkxMjE5LCJleHAiOjE2MDY4OTQ4MTl9.ZE4XPyZhY2kJvktoIlDNowKvAdKHdxlKchrG_f_cABE"
+      }
+      ```
+    * Kui kasutame API testimiseks Postmani, siis saab siit vastusest võtta tokeni ja kopeerida selle Postmani:
+    ![Token Postmanis](docs/images/postmanToken.png)
     * Lisame API-le middleware isLoggedIn, mis registreeritakse enne neid endpointe, mille puhul kasutaja peab olema sisse logitud.
       ```javascript
       ...
