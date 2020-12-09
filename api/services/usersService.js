@@ -15,7 +15,9 @@ usersService.read = async () => {
 }
 
 usersService.readByEmail = async (email) => {
+  console.log(email);
   const snapshot = await db.collection('users').where('email', '==', email).get();
+  console.log(snapshot);
   if (snapshot.empty) {
     console.log('No matching user.');
     return;

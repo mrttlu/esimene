@@ -43,8 +43,13 @@ const lecturersService = {
     await db.collection('lecturers').doc(lecturer.id).update(update);
     return update;
   },
-  delete: (id) => {
-    lecturers.splice(id, 1);
+  delete: async (id, userId) => {
+    const snapshot = await db.collection('lecturers').doc(id).get();
+    if (snapshot.empty || (snapshot.data().userId !== userId)) {
+      console.log('No matching lecturer.');
+      return false;
+    }
+    await db.collection('lecturers').doc(id).delete();
     return true;
   }
 };

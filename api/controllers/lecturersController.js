@@ -114,14 +114,15 @@ lecturersController.update = async (req, res) => {
 // Returns:
 //  Success: status 200 - OK and { success: true } message
 //  Fail: status 400 - Bad Request and error message in response body
-lecturersController.delete = (req, res) => {
+lecturersController.delete = async (req, res) => {
   // Check if required data exists
-  const id = typeof(req.body.id) === 'number' ? req.body.id : false;
-  if(id || id === 0) {
-      const deleted = lectrurersService.delete(id);
+  const id = typeof(req.body.id) === 'string' ? req.body.id : false;
+  const userId = req.user;
+  if(id) {
+      const deleted = await lecturersService.delete(id, userId);
       // Return success message
       res.status(200).json({
-          success: true
+          success: deleted
       });
   } else {
       // Return error message
