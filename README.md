@@ -526,6 +526,43 @@ module.exports = db;
   * Jest
   * Supertest
 
+## Ettevalmistus testimiseks
+* Viime express app-i loomise eraldi app.js faili ja jätame ainult API käivitamise index.js faili.
+app.js
+```javascript
+// Import express and put it into express constant
+const express = require('express');
+// Create express object and put it into app constant
+const app = express();
+...
+app.put('/api/homeworks', homeworksController.update);
+app.delete('/api/homeworks', homeworksController.delete);
+
+module.exports = app;
+```
+index.js
+```javascript
+const app = require('./app');
+const config = require('./config');
+const port = config.port;
+// Start listening
+app.listen(port, () => {
+    console.log('Server running');
+});
+```
+## Jest
+* https://jestjs.io/
+* dokumentatsioon: https://jestjs.io/docs/en/getting-started
+* Machers: https://jestjs.io/docs/en/using-matchers
+* npm install --save-dev jest
+* package.json failis muudame "test" sektsiooni:
+```javascript
+"scripts": {
+    "test": "jest",
+    "start": "nodemon index.js"
+  }
+```
+
 # Eksam (9.jaanuar)
 * Oma projekti esitlemine
 * Küsimused / vastused
