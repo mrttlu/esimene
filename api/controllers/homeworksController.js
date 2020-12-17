@@ -78,7 +78,7 @@ homeworksController.create = async (req, res) => {
 //  Fail: status 400 - Bad Request and error message in response body
 homeworksController.update = async (req, res) => {
   // Next lines checking if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
-  const id = typeof(req.body.id) === 'number' ? req.body.id : false;
+  const id = typeof(req.body.id) === 'string' ? req.body.id : false;
   const description = typeof(req.body.description) === 'string' && req.body.description.trim().length > 0 ? req.body.description : false;
   const dueDate = new Date();
   const subjectId = typeof(req.body.subjectId) === 'number' ? req.body.subjectId : false;
@@ -88,7 +88,8 @@ homeworksController.update = async (req, res) => {
     const homework = {
       id,
       description,
-      subjectId
+      subjectId,
+      dueDate
     }
     const result = await homeworksService.update(homework, userId);
     // Return updated user data

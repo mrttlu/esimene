@@ -26,12 +26,18 @@ homeworksService.read = async (userId) => {
 
 
 homeworksService.readById = async (id, userId) => {
-  const doc = await db.collection('users').doc(userId).collection('homeworks').doc(id).get();
-  if (!doc.exists) {
+  const subjects = await db.collection('users').doc(userId).collection('subjects').get();
+  let homework = null;
+  for (const subject of subjects.docs) {
+    const doc = await db.collection('users').doc(userId).collection('subjects').doc(subject.id).collection('homeworks').doc(id).get();
+    if(doc.exists) {
+      homework = doc.data();
+    }
+  }
+  if (!homework) {
     console.log('No such document!');
     return false;
   }
-  const homework = doc.data();
   return homework;
 }
 
