@@ -1,39 +1,48 @@
-// Database mockup
-const homeworks = [
-  {
-      id: 0,
-      description: 'Esimene kodutöö',
-      dueDate: Date.now(),
-      subjectId: 0,
-      userId: 0
-  },
-  {
-      id: 1,
-      description: 'Teine kodutöö',
-      dueDate: Date.now(),
-      subjectId: 0,
-      userId: 0
-  }
-];
-
+const { collection } = require('../../db');
+const db = require('../../db');
 const homeworksService = {};
 
-homeworksService.read = () => {
+homeworksService.read = async (userId) => {
+  const snapshot = await db.collection('users').doc(userId).collection('subjects').get();
+  const subjects = [];
+  for (const doc of snapshot.docs) {
+    subjects.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  }
+  const homeworks = [];
+  for (const subject of subjects) {
+    const snaps = await db.collection('users').doc(userId).collection('subjects').doc(subject.id).collection('homeworks').get();
+    for (const doc of snaps.docs) {
+      homeworks.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    }
+  }
   return homeworks;
 }
 
 
-homeworksService.readById = (id) => {
-  return homeworks[id];
-}
-
-homeworksService.create = (homework) => {
-  homework.id = homeworks.length,
-  homeworks.push(homework);
+homeworksService.readById = async (id, userId) => {
+  const doc = await db.collection('users').doc(userId).collection('homeworks').doc(id).get();
+  if (!doc.exists) {
+    console.log('No such document!');
+    return false;
+  }
+  const homework = doc.data();
   return homework;
 }
 
-homeworksService.update = (homework) => {
+homeworksService.create = async (homework, userId, subjectId) => {
+  await db.collection('users').doc(userId)
+    .collection('subjects').doc(subjectId)
+    .collection('homeworks').doc().set(homework);
+  return homework;
+}
+
+homeworksService.update = async (homework) => {
   // Check if optional data exists
   if (homework.description) {
     // Change user data in 'database'
@@ -47,7 +56,7 @@ homeworksService.update = (homework) => {
   return homeworks[homework.id];
 }
 
-homeworksService.delete = (id) => {
+homeworksService.delete = async (id) => {
   homeworks.splice(id, 1);
   return true;
 }

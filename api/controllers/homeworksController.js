@@ -7,8 +7,9 @@ const homeworksController = {};
 // Required values: none
 // Optional values: none
 // Returns: status 200 - OK and list of homeworks in response body
-homeworksController.read = (req, res) => {
-  const homeworks = homeworksService.read();
+homeworksController.read = async (req, res) => {
+  const userId = req.user;
+  const homeworks = await homeworksService.read(userId);
   // Return list of homeworks
   res.status(200).json({
       success: true,
@@ -21,9 +22,10 @@ homeworksController.read = (req, res) => {
 // Required: id
 // Optional: none
 // Returns: status 200 - OK and homework data in response body
-homeworksController.readById = (req, res) => {
+homeworksController.readById = async (req, res) => {
   const id = req.params.id;
-  const homework = homeworksService.readById(id);
+  const userId = req.user;
+  const homework = await homeworksService.readById(id, userId);
   // Return homework with specified id
   res.status(200).json({
       success: true,
@@ -38,22 +40,20 @@ homeworksController.readById = (req, res) => {
 // Returns:
 //  Success: status 201 - Created and homework data in response body
 //  Fail: status 400 - Bad Request and error message in response body
-homeworksController.create = (req, res) => {
+homeworksController.create = async (req, res) => {
   // Check if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
   const description = typeof(req.body.description) === 'string' && req.body.description.trim().length > 0 ? req.body.description : false;
   const dueDate = new Date();
-  const subjectId = typeof(req.body.subjectId) === 'number' ? req.body.subjectId : false;
-  const userId = typeof(req.body.userId) === 'number' ? req.body.userId : false;
+  const subjectId = typeof(req.body.subjectId) === 'string' ? req.body.subjectId : false;
+  const userId = req.user;
   // Check if required data exists
-  if (description && dueDate && (subjectId || subjectId === 0) && (userId || userId === 0)) {
+  if (description && dueDate && subjectId && userId) {
       // Create new json with user data
       const newHomework = {
           description,
-          dueDate,
-          subjectId,
-          userId
+          dueDate
       };
-      const homework = homeworksService.create(newHomework);
+      const homework = await homeworksService.create(newHomework, userId, subjectId);
 
       // Return data
       res.status(201).json({
@@ -76,20 +76,25 @@ homeworksController.create = (req, res) => {
 // Returns:
 //  Success: status 200 - OK and subject data in response body
 //  Fail: status 400 - Bad Request and error message in response body
-homeworksController.update = (req, res) => {
+homeworksController.update = async (req, res) => {
   // Next lines checking if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
   const id = typeof(req.body.id) === 'number' ? req.body.id : false;
   const description = typeof(req.body.description) === 'string' && req.body.description.trim().length > 0 ? req.body.description : false;
   const dueDate = new Date();
   const subjectId = typeof(req.body.subjectId) === 'number' ? req.body.subjectId : false;
+  const userId = req.user;
   // Check if required data exists
-  if(id || id === 0) {
-      const homework = homeworksService.update({ id, description, subjectId });
-      // Return updated user data
-      res.status(200).json({
-          success: true,
-          homework
-      });
+  if(id) {
+    const homework = {
+      id,
+      description,
+      subjectId
+    }
+    const result = await homeworksService.update(homework, userId);
+    // Return updated user data
+    res.status(200).json({
+        success: result
+    });
   } else {
       // Return error message
       res.status(400).json({
@@ -106,15 +111,16 @@ homeworksController.update = (req, res) => {
 // Returns:
 //  Success: status 200 - OK and { success: true } message
 //  Fail: status 400 - Bad Request and error message in response body
-homeworksController.delete = (req, res) => {
+homeworksController.delete = async (req, res) => {
   // Check if required data exists
   const id = typeof(req.body.id) === 'number' ? req.body.id : false;
-  if(id || id === 0) {
-      const deleted = homeworksService.delete(id);
-      // Return success message
-      res.status(200).json({
-          success: deleted
-      });
+  const userId = req.user;
+  if(id) {
+    const deleted = await homeworksService.delete(id);
+    // Return success message
+    res.status(200).json({
+        success: deleted
+    });
   } else {
       // Return error message
       res.status(400).json({
