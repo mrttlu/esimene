@@ -6,6 +6,12 @@ const user = {
   email: 'juku@juurikas.ee',
   password: 'juku'
 };
+
+const wrongPassword = {
+  email: 'juku@juurikas.ee',
+  password: 'juhan'
+};
+
 const wrongUser = {
   email: 'juku@juku.ee',
   password: 'juku'
@@ -28,7 +34,7 @@ describe('POST /api/login', function() {
     assert.isTrue(res.body.success);
     assert.ok(res.body.token);
   });
-  it('responds with success: false and message', async function() {
+  it('responds with success: false and message because of wrong user', async function() {
     const res = await request(app)
       .post('/api/login')
       .send(wrongUser);
@@ -36,7 +42,15 @@ describe('POST /api/login', function() {
     assert.isFalse(res.body.success);
     assert.ok(res.body.message);
   });
-  it('responds with success: false and message', async function() {
+  it('responds with success: false and message because of wrong password', async function() {
+    const res = await request(app)
+      .post('/api/login')
+      .send(wrongPassword);
+    assert.equal(res.statusCode, 401);
+    assert.isFalse(res.body.success);
+    assert.ok(res.body.message);
+  });
+  it('responds with success: false and message because of missing email', async function() {
     const res = await request(app)
       .post('/api/login')
       .send(missingEmail);
@@ -44,7 +58,7 @@ describe('POST /api/login', function() {
     assert.isFalse(res.body.success);
     assert.equal(res.body.message, 'Required field(s) missing or invalid');
   });
-  it('responds with success: false and message', async function() {
+  it('responds with success: false and message because of missing password', async function() {
     const res = await request(app)
       .post('/api/login')
       .send(missingPassword);

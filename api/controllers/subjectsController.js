@@ -26,11 +26,19 @@ subjectsController.readById = async (req, res) => {
   const id = req.params.id;
   const userId = req.user;
   const subject = await subjectsService.readById(id, userId);
+  if (subject) {
   // Return subject with specified id
-  res.status(200).json({
-      success: true,
-      subject
-  });
+    res.status(200).json({
+        success: true,
+        subject
+    });
+  } else {
+    // Return error
+    res.status(400).json({
+        success: false,
+        message: 'No subject found'
+    });
+  }
 }
 
 // Endpoint for creating new subject
@@ -52,11 +60,11 @@ subjectsController.create = async (req, res) => {
           name,
           lecturerId
       };
-      const subject = await subjectsService.create(newSubject, userId);
+      const subjectId = await subjectsService.create(newSubject, userId);
       // Return data
       res.status(201).json({
           success: true,
-          subject
+          subjectId
       });
   } else {
       // Return error message
@@ -88,10 +96,18 @@ subjectsController.update = async (req, res) => {
         lecturerId
       };
       const result = await subjectsService.update(subject, userId);
-      // Return updated user data
-      res.status(200).json({
-          success: result
-      });
+      if (result) {
+        // Return success
+        res.status(200).json({
+            success: result
+        });
+      } else {
+        res.status(400).json({
+            success: false,
+            message: 'Subject does not exists.'
+        });
+      }
+
   } else {
       // Return error message
       res.status(400).json({
@@ -114,10 +130,17 @@ subjectsController.delete = async (req, res) => {
   const userId = req.user;
   if(id) {
       const deleted = await subjectsService.delete(id, userId);
-      // Return success message
-      res.status(200).json({
-          success: deleted
-      });
+      if (deleted) {
+        // Return success message
+        res.status(200).json({
+            success: deleted
+        });
+      } else {
+        res.status(400).json({
+            success: false,
+            message: 'No subject found.'
+        });
+      }
   } else {
       // Return error message
       res.status(400).json({

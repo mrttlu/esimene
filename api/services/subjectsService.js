@@ -22,8 +22,8 @@ subjectsService.readById = async (id, userId) => {
 }
 
 subjectsService.create = async (subject, userId) => {
-  await db.collection('users').doc(userId).collection('subjects').doc().set(subject);
-  return subject;
+  const res = await db.collection('users').doc(userId).collection('subjects').add(subject);
+  return res.id;
 }
 
 subjectsService.update = async (subject, userId) => {
@@ -34,8 +34,8 @@ subjectsService.update = async (subject, userId) => {
   if (subject.name) {
     update.name = subject.name;
   }
-  const snapshot = await db.collection('users').doc(userId).collection('subjects').doc(subject.id).get();
-  if (snapshot.empty) {
+  const doc = await db.collection('users').doc(userId).collection('subjects').doc(subject.id).get();
+  if (!doc.exists) {
     console.log('No matching subject.');
     return false;
   }
@@ -44,8 +44,8 @@ subjectsService.update = async (subject, userId) => {
 }
 
 subjectsService.delete = async (id, userId) => {
-  const snapshot = await db.collection('users').doc(userId).collection('subjects').doc(id).get();
-  if (snapshot.empty) {
+  const doc = await db.collection('users').doc(userId).collection('subjects').doc(id).get();
+  if (!doc.exists) {
     console.log('No matching subject.');
     return false;
   }
