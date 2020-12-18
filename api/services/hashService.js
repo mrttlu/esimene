@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const { saltRounds } = require('../../config');
 const hashService = {};
 
 hashService.hash = async (password) => {

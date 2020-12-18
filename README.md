@@ -550,19 +550,22 @@ app.listen(port, () => {
     console.log('Server running');
 });
 ```
-## Jest
-* https://jestjs.io/
-* dokumentatsioon: https://jestjs.io/docs/en/getting-started
-* Machers: https://jestjs.io/docs/en/using-matchers
-* npm install --save-dev jest
+## Mocha - unit testing
+* https://mochajs.org/
+* npm install --save-dev mocha
 * package.json failis muudame "test" sektsiooni:
 ```javascript
 "scripts": {
-    "test": "jest",
+    "test": "mocha",
     "start": "nodemon index.js"
   }
 ```
-
+## Chai assertion library
+* https://www.chaijs.com/
+* Chai cheatsheet: https://devhints.io/chai
+## Supertest - end to end testing
+* https://www.npmjs.com/package/supertest
+* npm install supertest --save-dev
 # Eksam (9.jaanuar)
 * Oma projekti esitlemine
 * Küsimused / vastused

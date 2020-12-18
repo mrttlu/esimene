@@ -17,8 +17,6 @@ authController.login = async (req, res) => {
   if (email && password) {
     const token = await authService.login(email, password);
     if (token) {
-      
-
       // Return data
       res.status(200).json({
         success: true,
