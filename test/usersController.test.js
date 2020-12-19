@@ -35,7 +35,7 @@ describe(`POST ${ path }`, () => {
     assert.ok(res.body.id);
     userId = res.body.id;
   });
-  it('responds with success: false because of insufficient data', async () => {
+  it('responds with success: false because of missing password', async () => {
     const res = await request(app)
       .post(path)
       .send({
@@ -46,16 +46,88 @@ describe(`POST ${ path }`, () => {
     assert.equal(res.statusCode, 400);
     assert.isFalse(res.body.success);
   });
+  it('responds with success: false because of missing email', async () => {
+    const res = await request(app)
+      .post(path)
+      .send({
+        firstName: 'firstName',
+        lastName: 'lastName',
+        password: 'password'
+      });
+    assert.equal(res.statusCode, 400);
+    assert.isFalse(res.body.success);
+  });
+  it('responds with success: false because of missing firstName', async () => {
+    const res = await request(app)
+      .post(path)
+      .send({
+        lastName: 'lastName',
+        email: 'email',
+        password: 'password'
+      });
+    assert.equal(res.statusCode, 400);
+    assert.isFalse(res.body.success);
+  });
+  it('responds with success: false because of missing lastName', async () => {
+    const res = await request(app)
+      .post(path)
+      .send({
+        firstName: 'firstName',
+        email: 'email',
+        password: 'password'
+      });
+    assert.equal(res.statusCode, 400);
+    assert.isFalse(res.body.success);
+  });
+  it('responds with success: false because of missing data', async () => {
+    const res = await request(app)
+      .post(path);
+    assert.equal(res.statusCode, 400);
+    assert.isFalse(res.body.success);
+  });
 });
 
 describe(`PUT ${ path }`, () => {
-  it('updates new user and responds with success: true', async () => {
+  it('updates users firstName and responds with success: true', async () => {
     const res = await request(app)
       .put(path)
       .set('Authorization', 'Bearer ' + token)
       .send({
         id: userId,
         firstName: 'Onu'
+      });
+    assert.equal(res.statusCode, 200);
+    assert.isTrue(res.body.success);
+  });
+  it('updates users lastName and responds with success: true', async () => {
+    const res = await request(app)
+      .put(path)
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        id: userId,
+        lastName: 'Paul'
+      });
+    assert.equal(res.statusCode, 200);
+    assert.isTrue(res.body.success);
+  });
+  it('updates users email and responds with success: true', async () => {
+    const res = await request(app)
+      .put(path)
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        id: userId,
+        email: 'uncle@paul.ee'
+      });
+    assert.equal(res.statusCode, 200);
+    assert.isTrue(res.body.success);
+  });
+  it('updates users password and responds with success: true', async () => {
+    const res = await request(app)
+      .put(path)
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        id: userId,
+        password: 'wosspard'
       });
     assert.equal(res.statusCode, 200);
     assert.isTrue(res.body.success);
