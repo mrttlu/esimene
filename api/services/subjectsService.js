@@ -22,8 +22,8 @@ subjectsService.readById = async (id, userId) => {
 }
 
 subjectsService.create = async (subject, userId) => {
-  const res = await db.collection('users').doc(userId).collection('subjects').add(subject);
-  return res.id;
+  const doc = await db.collection('users').doc(userId).collection('subjects').add(subject);
+  return doc.id;
 }
 
 subjectsService.update = async (subject, userId) => {

@@ -14,17 +14,26 @@ const lecturersService = {
   readById: async (id) => {
     const doc = await db.collection('lecturers').doc(id).get();
     if (!doc.exists) {
-      console.log('No such document!');
+      console.log('No such lecturer!');
       return false;
     }
     const lecturer = doc.data();
     return lecturer;
   },
   create: async (lecturer) => {
-    await db.collection('lecturers').doc().set(lecturer);
-    return lecturer;
+    if(!lecturer) {
+      console.log('Missing data');
+      return false;
+    };
+    const doc = await db.collection('lecturers').add(lecturer);
+    if(!doc.id) return false;
+    return doc.id;
   },
   update: async (lecturer, userId) => {
+    if (!lecturer || !userId) {
+      console.log('Missing data.')
+      return false
+    };
     const update = {};
     if (lecturer.firstName) {
       update.firstName = lecturer.firstName;
@@ -35,17 +44,21 @@ const lecturersService = {
     if (lecturer.email) {
       update.email = lecturer.email;
     }
-    const snapshot = await db.collection('lecturers').doc(lecturer.id).get();
-    if (snapshot.empty || (snapshot.data().userId !== userId)) {
+    const doc = await db.collection('lecturers').doc(lecturer.id).get();
+    if (!doc.data() || (doc.data().userId !== userId)) {
       console.log('No matching lecturer.');
       return false;
     }
     await db.collection('lecturers').doc(lecturer.id).update(update);
-    return update;
+    return true;
   },
   delete: async (id, userId) => {
-    const snapshot = await db.collection('lecturers').doc(id).get();
-    if (snapshot.empty || (snapshot.data().userId !== userId)) {
+    if(!id || !userId) {
+      console.log('Missing data.');
+      return false;
+    }
+    const doc = await db.collection('lecturers').doc(id).get();
+    if (!doc.data() || (doc.data().userId !== userId)) {
       console.log('No matching lecturer.');
       return false;
     }
