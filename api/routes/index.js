@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 // Import controllers
 const pingController = require('../controllers/pingController');
 const usersController = require('../controllers/usersController');
@@ -17,7 +18,7 @@ router.post('/api/users', usersController.create);
 
 router.use(isLoggedIn);
 
-router.get('/api/users', usersController.read);
+router.get('/api/users', usersController.read); 
 router.get('/api/users/:id', usersController.readById);
 router.put('/api/users', usersController.update);
 router.delete('/api/users', usersController.delete);

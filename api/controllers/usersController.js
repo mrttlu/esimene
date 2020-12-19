@@ -21,14 +21,23 @@ usersController.read = async (req, res) => {
 // Optional: none
 // Returns: status 200 - OK and user data in response body
 usersController.readById = async (req, res) => {
-    const userId = req.params.id;
+    const userId = typeof(req.params.id) === 'string' && req.params.id.trim().length > 5 ? req.params.id : false;
     if (userId) {
         const user = await usersService.readById(userId);
-        // Return user with specified id
-        res.status(200).json({
-            success: true,
-            user: user
-        });
+        if (user) {
+            // Return user with specified id
+            res.status(200).json({
+                success: true,
+                user: user
+            });
+        } else {
+            // Return error
+            res.status(400).json({
+                success: false,
+                message: 'No user found.'
+            });
+        }
+
     } else {
         res.status(400).json({
             success: false,
@@ -62,11 +71,11 @@ usersController.create = async (req, res) => {
             password
         };
 
-        const newUser = await usersService.create(user);
+        const userId = await usersService.create(user);
         // Return data
         res.status(201).json({
             success: true,
-            user: newUser
+            id: userId
         });
     } else {
         // Return error message
@@ -88,15 +97,6 @@ usersController.update = async (req, res) => {
     // Next lines checking if provided data is expected type (typeof) and has length when whitespace is removed (.trim().length)
     // Ternary operator: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator
     const id = typeof(req.body.id) === 'string' ? req.body.id : false;
-    /* Same as:
-    let id;
-     if (typeof(req.body.id) === 'number') {
-        id = req.body.id
-     } else {
-         id = false;
-     }
-     */
-    // Check if required data exists
     if(id) {
         const firstName = typeof(req.body.firstName) === 'string' && req.body.firstName.trim().length > 0 ? req.body.firstName : false;
         const lastName = typeof(req.body.lastName) === 'string' && req.body.lastName.trim().length > 0 ? req.body.lastName : false;
@@ -111,12 +111,19 @@ usersController.update = async (req, res) => {
             password
         };
     
-        const updatedUser = await usersService.update(user);
-            // Return updated user data
+        const result = await usersService.update(user);
+        if(result) {
+            // Return true
             res.status(200).json({
-                success: true,
-                user: updatedUser
+                success: true
             });
+        } else {
+            // Return error
+            res.status(400).json({
+                success: false,
+                message: 'No user found.'
+            });
+        }
     }  else {
         // Return error message
         res.status(400).json({
@@ -136,12 +143,21 @@ usersController.update = async (req, res) => {
 usersController.delete = async (req, res) => {
     // Check if required data exists
     const id = typeof(req.body.id) === 'string' ? req.body.id : false;
-    if(id || id === 0) {
+    if(id) {
         const result = await usersService.delete(id);
-        // Return success message
-        res.status(200).json({
-            success: result
-        });
+        if (result) {
+            // Return success message
+            res.status(200).json({
+                success: result
+            });
+        } else {
+            // Return error message
+            res.status(400).json({
+                success: false,
+                message: 'No user found'
+            });
+        }
+
     } else {
         // Return error message
         res.status(400).json({

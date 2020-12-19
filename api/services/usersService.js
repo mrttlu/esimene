@@ -5,8 +5,7 @@ usersService = {};
 
 // Return list of users
 usersService.read = async () => {
-  const usersRef = db.collection('users');
-  const snapshot = await usersRef.get();
+  const snapshot = await db.collection('users').get();
   const users = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -31,7 +30,7 @@ usersService.readByEmail = async (email) => {
 usersService.readById = async (userId) => {
   const doc = await db.collection('users').doc(userId).get();
   if (!doc.exists) {
-    console.log('No such document!');
+    console.log('No user found!');
     return false;
   }
   const user = doc.data();
@@ -41,16 +40,18 @@ usersService.readById = async (userId) => {
 // Create user
 usersService.create = async (user) => {
   user.password = await hashService.hash(user.password);
-  // Add user to 'database'
-  await db.collection('users').doc(user.email).set(user);
-  // Create new json from newUser for response
-  const userToReturn = { ... user };
-  // Remove password from user data
-  delete userToReturn.password;
-  return userToReturn;
+  // Add user to database
+  const res = await db.collection('users').add(user);
+  // Return new user ID
+  return res.id;
 }
 
 usersService.update = async (user) => {
+  const doc = await db.collection('users').doc(user.id).get();
+  if (!doc.exists) {
+    console.log('No matching user.');
+    return false;
+  }
   let update = {};
     // Check if optional data exists
     if (user.firstName) {
@@ -72,11 +73,16 @@ usersService.update = async (user) => {
         // Change user data in 'database'
         update.password = await hashService.hash(user.password);
     }
-    await db.collection('users').doc(user.id).update(update);
+    const res = await db.collection('users').doc(user.id).update(update);
     return true;
 }
 
 usersService.delete = async (id) => {
+  const doc = await db.collection('users').doc(id).get();
+  if (!doc.exists) {
+    console.log('No matching user.');
+    return false;
+  }
   await db.collection('users').doc(id).delete();
   return true;
 }
