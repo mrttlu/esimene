@@ -1,4 +1,3 @@
-const { collection } = require('../../db');
 const db = require('../../db');
 const homeworksService = {};
 
@@ -26,7 +25,9 @@ homeworksService.read = async (userId) => {
 
 
 homeworksService.readById = async (id, userId) => {
+  if(!id || !userId) return false;
   const subjects = await db.collection('users').doc(userId).collection('subjects').get();
+  if(!subjects.docs) return false;
   let homework = null;
   for (const subject of subjects.docs) {
     const doc = await db.collection('users').doc(userId).collection('subjects').doc(subject.id).collection('homeworks').doc(id).get();
@@ -42,12 +43,14 @@ homeworksService.readById = async (id, userId) => {
 }
 
 homeworksService.create = async (homework, userId, subjectId) => {
-  await db.collection('users').doc(userId)
+  if(!homework || !userId || !subjectId) return false;
+  const doc = await db.collection('users').doc(userId)
     .collection('subjects').doc(subjectId)
-    .collection('homeworks').doc().set(homework);
-  return homework;
+    .collection('homeworks').add(homework);
+  return doc.id;
 }
 
+// TODO
 homeworksService.update = async (homework) => {
   // Check if optional data exists
   if (homework.description) {
@@ -62,6 +65,8 @@ homeworksService.update = async (homework) => {
   return homeworks[homework.id];
 }
 
+
+// TODO
 homeworksService.delete = async (id) => {
   homeworks.splice(id, 1);
   return true;
